@@ -366,20 +366,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "ms_store_api"
+name = "msstore"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
  "rust-embed",
- "serde",
- "serde_json",
- "tokio",
 ]
-
-[[package]]
-name = "msstore"
-version = "0.1.0"
 
 [[package]]
 name = "object"
@@ -583,6 +575,18 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "server"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "msstore",
+ "serde",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]
