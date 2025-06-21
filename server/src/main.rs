@@ -3,9 +3,10 @@ mod handler;
 
 use anyhow::Ok;
 
-use axum::{Extension, Router};
+use axum::{Extension, Router, extract::Request, http};
 use std::sync::Arc;
 use tokio::signal;
+use tower_http::trace::{DefaultMakeSpan, TraceLayer};
 use tracing::{info, warn};
 
 use config::{Config, Environment, File};
@@ -27,7 +28,36 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .route("/{id}", axum::routing::any(handler::handler))
         .fallback(handler::default_handler)
-        .layer(Extension(config.clone()));
+        .layer(Extension(config.clone()))
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(DefaultMakeSpan::new().include_headers(true))
+                .on_request(|request: &Request, _span: &tracing::Span| {
+                    let user_agent: Option<&str> = request
+                        .headers()
+                        .get(http::header::USER_AGENT)
+                        .and_then(|value| value.to_str().ok());
+
+                    info!(
+                        method = %request.method(),
+                        uri = %request.uri(),
+                        user_agent = user_agent,
+                        "Received request",
+                    );
+                })
+                .on_response(
+                    |response: &axum::response::Response,
+                     latency: std::time::Duration,
+                     _span: &tracing::Span| {
+                        // 同样，响应信息也可以添加更多字段
+                        info!(
+                            status = %response.status(),
+                            latency_ms = latency.as_millis(), // 毫秒可以更方便解析
+                            "Responded to request",
+                        );
+                    },
+                ),
+        );
 
     let listener =
         tokio::net::TcpListener::bind(format!("{}:{}", &config.address, config.port)).await?;
