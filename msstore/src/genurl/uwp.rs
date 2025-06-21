@@ -228,9 +228,7 @@ pub async fn gen_uwp_url(client: &Client, fulfillment_data: &str) -> Result<Url>
             if let Some(file_location_node) = doc.descendants().find(|n| n.tag_name().name() == "FileLocation") {
                 if let Some(url_node) = file_location_node.descendants().find(|n| n.tag_name().name() == "Url") {
                     if let Some(url) = url_node.text() {
-                        if url.len() != 99 {
-                            return Some((file_name, url.to_string()));
-                        }
+                        return Some((file_name, url.to_string()));
                     }
                 }
             }
