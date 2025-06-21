@@ -82,7 +82,7 @@ pub async fn gen_uwp_url(client: &Client, fulfillment_data: &str) -> Result<Url>
         .text()
         .await
         .map_err(|e| anyhow!("Failed to get WUID response text: {}", e))?;
-    let decoded_resp_text = html_escape::decode_html_entities(&resp_text); // Equivalent to Python's html.unescape
+    let decoded_resp_text = html_escape::decode_html_entities(&resp_text);
     let xml_doc = Document::parse(&decoded_resp_text)
         .map_err(|e| anyhow!("Failed to parse WUID response XML: {}", e))?;
 

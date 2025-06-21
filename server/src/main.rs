@@ -49,10 +49,9 @@ async fn main() -> anyhow::Result<()> {
                     |response: &axum::response::Response,
                      latency: std::time::Duration,
                      _span: &tracing::Span| {
-                        // 同样，响应信息也可以添加更多字段
                         info!(
                             status = %response.status(),
-                            latency_ms = latency.as_millis(), // 毫秒可以更方便解析
+                            latency_ms = latency.as_millis(),
                             "Responded to request",
                         );
                     },
