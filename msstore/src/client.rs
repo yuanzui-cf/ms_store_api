@@ -2,7 +2,7 @@ use anyhow::Result;
 use reqwest::Client;
 use serde_json::Value;
 
-use crate::genurl::{Url, gen_uwp_url};
+use crate::genurl::{gen_non_uwp_url, gen_uwp_url, Url};
 
 /// Extracts fulfillment data from a JSON value representing product details.
 ///
@@ -63,12 +63,12 @@ pub async fn fetch_product_details(product_id: &str) -> Result<Url> {
     // 解析响应数据
     let fulfillment_data = get_fulfillment_data(&json_value);
 
-    if let Some(fulfillment) = fulfillment_data {
-        if !fulfillment.is_empty() {
-            return gen_uwp_url(&client, &fulfillment).await;
-        }
+    if let Some(fulfillment) = fulfillment_data
+        && !fulfillment.is_empty()
+    {
+        return gen_uwp_url(&client, &fulfillment).await;
     }
 
     // 非UWP应用或无效产品ID
-    anyhow::bail!("Invalid product ID or not a UWP app")
+    gen_non_uwp_url(&client, product_id).await
 }
