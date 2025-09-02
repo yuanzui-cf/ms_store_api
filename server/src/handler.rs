@@ -1,6 +1,8 @@
 use std::sync::Arc;
 
-use axum::{Extension, Json, extract::Path};
+use axum::http::{header, StatusCode};
+use axum::response::IntoResponse;
+use axum::{extract::Path, Extension, Json};
 use msstore::client::fetch_product_details;
 use serde::{Deserialize, Serialize};
 
@@ -17,7 +19,7 @@ pub struct Response {
 pub async fn handler(
     Extension(config): Extension<Arc<conf::AppConfig>>,
     Path(id): Path<String>,
-) -> Json<Response> {
+) -> impl IntoResponse {
     let mut res = Response {
         name: config.app_name.clone(),
         message: "".to_string(),
@@ -33,7 +35,12 @@ pub async fn handler(
         res.message = format!("Error: {}", details.err().unwrap());
     }
 
-    Json(res)
+    (
+        StatusCode::OK,
+        [(header::CONTENT_TYPE, "application/json; charset=utf-8")],
+        Json(res),
+    )
+        .into_response()
 }
 
 pub async fn default_handler(Extension(config): Extension<Arc<conf::AppConfig>>) -> Json<Response> {
