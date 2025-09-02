@@ -4,6 +4,10 @@
 
 The Macrohard Store API project provides a backend service to generate download URLs for UWP apps.
 
+## Requirement
+
+`Rust >= 1.88.0`
+
 ## Installation
 
 1. Clone the repository:
